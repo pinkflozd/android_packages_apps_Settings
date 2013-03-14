@@ -24,7 +24,6 @@ import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
-import android.preference.CheckBoxPreference;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.IWindowManager;
@@ -52,7 +51,6 @@ public class SystemSettings extends SettingsPreferenceFragment {
 
     private PreferenceScreen mNotificationPulse;
     private PreferenceScreen mBatteryPulse;
-    private CheckBoxPreference mShowNavbar;
     private boolean mIsPrimary;
 
     @Override
@@ -77,17 +75,16 @@ public class SystemSettings extends SettingsPreferenceFragment {
                 }
             }
 
-            // Show navbar
-            mShowNavbar = (CheckBoxPreference) findPreference(KEY_SHOW_NAVBAR);
-            mShowNavbar.setChecked(Settings.System.getInt(getActivity().getContentResolver(),
-                    SystemSettings.KEY_SHOW_NAVBAR, 0) == 1);
-
-            // Only show the navigation bar config on phones that has a navigation bar
+            // Only show the hardware keys config on a device that does not have a navbar
+            // and the navigation bar config on phones that has a navigation bar
+            boolean removeKeys = false;
             boolean removeNavbar = false;
             IWindowManager windowManager = IWindowManager.Stub.asInterface(
                     ServiceManager.getService(Context.WINDOW_SERVICE));
             try {
-                if (!windowManager.hasNavigationBar()) {
+                if (windowManager.hasNavigationBar()) {
+                    removeKeys = true;
+                } else {
                     removeNavbar = true;
                 }
             } catch (RemoteException e) {
@@ -95,6 +92,9 @@ public class SystemSettings extends SettingsPreferenceFragment {
             }
 
             // Act on the above
+            if (removeKeys) {
+                prefScreen.removePreference(findPreference(KEY_HARDWARE_KEYS));
+            }
             if (removeNavbar) {
                 prefScreen.removePreference(findPreference(KEY_NAVIGATION_BAR));
                 prefScreen.removePreference(findPreference(KEY_NAVIGATION_RING));
@@ -145,17 +145,6 @@ public class SystemSettings extends SettingsPreferenceFragment {
             mBatteryPulse.setSummary(getString(R.string.notification_light_disabled));
         }
      }
-
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (preference == mShowNavbar) {
-            Settings.System.putInt(getContentResolver(), SystemSettings.KEY_SHOW_NAVBAR,
-                    mShowNavbar.isChecked() ? 1 : 0);
-        } else {
-            return super.onPreferenceTreeClick(preferenceScreen, preference);
-        }
-        return true;
-    }
 
     @Override
     public void onResume() {
