@@ -16,10 +16,8 @@
 
 package com.android.settings.cmstats;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -28,8 +26,18 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.os.IBinder;
+import android.util.Log;
+
+import com.android.settings.R;
+import com.android.settings.Settings;
 
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
@@ -39,25 +47,26 @@ import com.android.settings.R;
 public class ReportingService extends Service {
     protected static final String TAG = "CMStats";
 
-    protected static final String ANONYMOUS_LAST_CHECKED = "pref_anonymous_checked_in";
-
-    protected static final String ANONYMOUS_ALARM_SET = "pref_anonymous_alarm_set";
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "Sending anonymous statistics data..");
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                report();
-            }
-        };
-        thread.start();
+    public int onStartCommand (Intent intent, int flags, int startId) {
+        if (intent.getBooleanExtra("firstBoot", false)) {
+            promptUser();
+            Log.d(TAG, "Prompting user for opt-in.");
+        } else {
+            Log.d(TAG, "User has opted in -- reporting.");
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    report();
+                }
+            };
+            thread.start();
+        }
         return Service.START_REDELIVER_INTENT;
     }
 
@@ -80,6 +89,19 @@ public class ReportingService extends Service {
         GoogleAnalytics ga = GoogleAnalytics.getInstance(this);
         Tracker tracker = ga.getTracker(getString(R.string.ga_trackingId));
         tracker.sendEvent(deviceName, deviceVersion, deviceCountry, null);
+        // this really should be set at build time...
+        // format of version should be:
+        // version[-date-type]-device
+        String[] parts = deviceVersion.split("-");
+        String deviceVersionNoDevice = null;
+        if (parts.length == 2) {
+            deviceVersionNoDevice = parts[0];
+        }
+        else if (parts.length == 4) {
+            deviceVersionNoDevice = parts[0] + "-" + parts[2];
+        }
+        if (deviceVersionNoDevice != null)
+            tracker.sendEvent("checkin", deviceName, deviceVersionNoDevice, null);
         tracker.close();
 
         // report to the cmstats service
@@ -95,12 +117,28 @@ public class ReportingService extends Service {
             kv.add(new BasicNameValuePair("device_carrier_id", deviceCarrierId));
             httppost.setEntity(new UrlEncodedFormEntity(kv));
             httpclient.execute(httppost);
-            getSharedPreferences("CMStats", 0).edit().putLong(ANONYMOUS_LAST_CHECKED,
+            getSharedPreferences("CMStats", 0).edit().putLong(AnonymousStats.ANONYMOUS_LAST_CHECKED,
                     System.currentTimeMillis()).apply();
         } catch (Exception e) {
             Log.e(TAG, "Got Exception", e);
         }
         ReportingServiceManager.setAlarm(this);
         stopSelf();
+    }
+
+    private void promptUser() {
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Intent nI = new Intent();
+        nI.setComponent(new ComponentName(getPackageName(),Settings.AnonymousStatsActivity.class.getName()));
+        PendingIntent pI = PendingIntent.getActivity(this, 0, nI, 0);
+        Notification.Builder builder = new Notification.Builder(this)
+        .setSmallIcon(R.drawable.ic_cm_stats_notif)
+        .setAutoCancel(true)
+        .setTicker(getString(R.string.anonymous_statistics_title))
+        .setContentIntent(pI)
+        .setWhen(0)
+        .setContentTitle(getString(R.string.anonymous_statistics_title))
+        .setContentText(getString(R.string.anonymous_notification_desc));
+        nm.notify(1, builder.getNotification());
     }
 }
