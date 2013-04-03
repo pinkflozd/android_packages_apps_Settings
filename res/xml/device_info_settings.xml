@@ -26,14 +26,6 @@
                     android:targetClass="com.android.settings.deviceinfo.Status" />
         </PreferenceScreen>
 
-        <!-- Partition info -->
-        <PreferenceScreen android:key="partition_info"
-                android:title="@string/partition_info_title"
-                android:summary="@string/partition_info_title">
-            <intent android:action="com.android.action.MAIN"
-                    android:targetPackage="com.android.settings"
-                    android:targetClass="com.android.settings.extras.PartitionInfo" />
-
         <!-- Anonymous statistics - (CMStats) -->
         <PreferenceScreen
             android:key="cmstats"
@@ -41,6 +33,14 @@
             android:summary="@string/anonymous_statistics_summary"
             android:fragment="com.android.settings.cmstats.AnonymousStats" >
         </PreferenceScreen>
+
+        <!-- Partition info -->
+        <PreferenceScreen android:key="partition_info"
+                android:title="@string/partition_info_title"
+                android:summary="@string/partition_info_title">
+            <intent android:action="com.android.action.MAIN"
+                    android:targetPackage="com.android.settings"
+                    android:targetClass="com.android.settings.extras.PartitionInfo" />
 
         <!-- Change Log -->
         <PreferenceScreen android:key="changelog"
