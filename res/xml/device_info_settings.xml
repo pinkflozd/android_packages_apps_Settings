@@ -41,6 +41,7 @@
             <intent android:action="com.android.action.MAIN"
                     android:targetPackage="com.android.settings"
                     android:targetClass="com.android.settings.extras.PartitionInfo" />
+         </PreferenceScreen>
 
         <!-- Change Log -->
         <PreferenceScreen android:key="changelog"
