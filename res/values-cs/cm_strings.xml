@@ -122,6 +122,14 @@
     <string name="system_interface_title">Rozhraní systému</string>
 
     <string name="notification_drawer_title">Oznamovací oblast</string>
+    <string name="notification_drawer_behaviour_title">Chování</string>
+    <string name="notification_drawer_collapse_on_dismiss_title">Automatické uzavírání</string>
+    <string name="collapse_on_dismiss_never">Zakázáno</string>
+    <string name="collapse_on_dismiss_if_empty">Pokud nic nezůstalo</string>
+    <string name="collapse_on_dismiss_if_no_clearable">Pokud další položky nelze odebrat</string>
+    <string name="collapse_on_dismiss_never_summary">Ponechat oznamovací oblast otevřenou při odebírání upozornění</string>
+    <string name="collapse_on_dismiss_if_empty_summary">Zavřít oznamovací oblast při odebrání posledního upozornění</string>
+    <string name="collapse_on_dismiss_if_no_clearable_summary">Zavřít oznamovací oblast při odebrání posledního upozornění, které lze odebrat</string>
 
     <string name="lock_screen_title">Zámek obrazovky</string>
 
@@ -311,6 +319,7 @@
     <string name="display_rotation_title">Rotace</string>
     <string name="display_rotation_disabled">Zakázáno.</string>
     <string name="display_rotation_unit">stupně</string>
+    <string name="display_lockscreen_rotation_title">Rotovat obrazovku zámku</string>
     <string name="display_rotation_category_title">Režim rotace</string>
     <string name="display_rotation_0_title">0 stupňů</string>
     <string name="display_rotation_90_title">90 stupňů</string>
@@ -468,7 +477,6 @@
 
     <string name="power_widget_title">Power widget</string>
     <string name="title_expanded_widget">Aktivovat Power widget</string>
-    <string name="power_widget_behavior">Chování widgetu</string>
     <string name="title_expanded_hide_onchange">Skrýt oblast po změně</string>
     <string name="title_expanded_hide_indicator">Skrýt zvýraznění</string>
     <string name="title_expanded_hide_scrollbar">Skrýt posuvník</string>
@@ -676,7 +684,6 @@
     <string name="lockscreen_widgets_category_title">Widgety</string>
     <string name="lockscreen_maximize_widgets_title">Maximalizovat widgety</string>
     <string name="lockscreen_maximize_widgets_summary">Na obrazovce zámku zobrazit widgety maximalizované a ovládání zámku minimalizované</string>
-    <string name="lockscreen_other_category_title">Ostatní</string>
     <string name="lockscreen_enable_widgets_title">Stránky widgetů</string>
     <string name="lockscreen_enable_widgets_summary">Umožnit více stránek pro widgety</string>
     <string name="lockscreen_enable_camera_title">Widget fotoaparátu</string>
