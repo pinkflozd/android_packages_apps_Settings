@@ -29,6 +29,10 @@ import com.android.settings.Utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
 
 public class BootReceiver extends BroadcastReceiver {
 
@@ -37,6 +41,8 @@ public class BootReceiver extends BroadcastReceiver {
     private static final String CPU_SETTINGS_PROP = "sys.cpufreq.restored";
     private static final String IOSCHED_SETTINGS_PROP = "sys.iosched.restored";
     private static final String KSM_SETTINGS_PROP = "sys.ksm.restored";
+    private static final String UNDERVOLTING_PROP = "persist.sys.undervolt";
+    private static String UV_MODULE;
 
     @Override
     public void onReceive(Context ctx, Intent intent) {
@@ -79,9 +85,39 @@ public class BootReceiver extends BroadcastReceiver {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 
         if (prefs.getBoolean(Processor.SOB_PREF, false) == false) {
+            SystemProperties.set(UNDERVOLTING_PROP, "0");
             Log.i(TAG, "Restore disabled by user preference.");
             return;
         }
+
+        UV_MODULE = ctx.getResources().getString(com.android.settings.R.string.undervolting_module);
+	if (SystemProperties.getBoolean(UNDERVOLTING_PROP, false) == true) {
+            String vdd_levels_path = "/sys/devices/system/cpu/cpu0/cpufreq/vdd_levels";
+            File vdd_levels = new File(vdd_levels_path);
+            if (vdd_levels.isFile() && vdd_levels.canRead()) {
+                Utils.fileWriteOneLine(vdd_levels_path, "122880 0");
+                Utils.fileWriteOneLine(vdd_levels_path, "245760 2");
+                Utils.fileWriteOneLine(vdd_levels_path, "320000 3");
+                Utils.fileWriteOneLine(vdd_levels_path, "480000 5");
+                Utils.fileWriteOneLine(vdd_levels_path, "600000 6");
+		Utils.fileWriteOneLine(vdd_levels_path, "800000 6");
+            }
+            else
+                // insmod undervolting module for .29 kernel
+                insmod(UV_MODULE, true);
+        }
+        else {
+            String vdd_levels_path = "/sys/devices/system/cpu/cpu0/cpufreq/vdd_levels";
+            File vdd_levels = new File(vdd_levels_path);
+            if (vdd_levels.isFile() && vdd_levels.canRead()) {
+                Utils.fileWriteOneLine(vdd_levels_path, "122880 3");
+                Utils.fileWriteOneLine(vdd_levels_path, "245760 4");
+                Utils.fileWriteOneLine(vdd_levels_path, "320000 5");
+                Utils.fileWriteOneLine(vdd_levels_path, "480000 6");
+                Utils.fileWriteOneLine(vdd_levels_path, "600000 7");
+                Utils.fileWriteOneLine(vdd_levels_path, "800000 7");
+            }
+	}
 
         String governor = prefs.getString(Processor.GOV_PREF, null);
         String minFrequency = prefs.getString(Processor.FREQ_MIN_PREF, null);
@@ -149,5 +185,31 @@ public class BootReceiver extends BroadcastReceiver {
 
         Utils.fileWriteOneLine(MemoryManagement.KSM_RUN_FILE, ksm ? "1" : "0");
         Log.d(TAG, "KSM settings restored.");
+    }
+
+    private static boolean insmod(String module, boolean insert) {
+        String command;
+    if (insert)
+        command = "/system/bin/insmod /system/lib/modules/" + module;
+    else
+        command = "/system/bin/rmmod " + module;
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            Log.e(TAG, "Executing: " + command);
+            DataOutputStream outputStream = new DataOutputStream(process.getOutputStream()); 
+            DataInputStream inputStream = new DataInputStream(process.getInputStream());
+            outputStream.writeBytes(command + "\n");
+            outputStream.flush();
+            outputStream.writeBytes("exit\n");
+            outputStream.flush();
+            process.waitFor();
+        }
+        catch (IOException e) {
+            return false;
+        }
+        catch (InterruptedException e) {
+            return false;
+        }
+        return true;
     }
 }

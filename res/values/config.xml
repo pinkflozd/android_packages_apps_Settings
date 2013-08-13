@@ -52,4 +52,7 @@
     <string name="min_cpu_freq_file" translatable="false">/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</string>
 
     <!-- **** CYANOGENMOD ADDITIONS END **** -->
+
+    <!-- Undervolting module -->
+    <string name="undervolting_module"></string>
 </resources>
