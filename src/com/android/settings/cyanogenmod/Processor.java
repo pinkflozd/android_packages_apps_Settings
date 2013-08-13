@@ -264,10 +264,11 @@ public class Processor extends SettingsPreferenceFragment implements
                     File vdd_levels = new File(vdd_levels_path);
                     if (vdd_levels.isFile() && vdd_levels.canRead()) {
                         Utils.fileWriteOneLine(vdd_levels_path, "122880 3");
-                        Utils.fileWriteOneLine(vdd_levels_path, "245760 4");
-                        Utils.fileWriteOneLine(vdd_levels_path, "320000 5");
-                        Utils.fileWriteOneLine(vdd_levels_path, "480000 6");
-                        Utils.fileWriteOneLine(vdd_levels_path, "604800 7");
+                	Utils.fileWriteOneLine(vdd_levels_path, "245760 4");
+                	Utils.fileWriteOneLine(vdd_levels_path, "320000 5");
+                	Utils.fileWriteOneLine(vdd_levels_path, "480000 6");
+                	Utils.fileWriteOneLine(vdd_levels_path, "600000 7");
+                	Utils.fileWriteOneLine(vdd_levels_path, "800000 7");
                     }
                     else {
                         //remove the undervolting module for .29 kernel
@@ -279,11 +280,12 @@ public class Processor extends SettingsPreferenceFragment implements
                     String vdd_levels_path = "/sys/devices/system/cpu/cpu0/cpufreq/vdd_levels";
                     File vdd_levels = new File(vdd_levels_path);
                     if (vdd_levels.isFile() && vdd_levels.canRead()) {
-                        Utils.fileWriteOneLine(vdd_levels_path, "122880 0");
-                        Utils.fileWriteOneLine(vdd_levels_path, "245760 2");
-                        Utils.fileWriteOneLine(vdd_levels_path, "320000 3");
-                        Utils.fileWriteOneLine(vdd_levels_path, "480000 5");
-                        Utils.fileWriteOneLine(vdd_levels_path, "604800 6");
+                        Utils.fileWriteOneLine(vdd_levels_path, "122880 2");
+                	Utils.fileWriteOneLine(vdd_levels_path, "245760 2");
+                	Utils.fileWriteOneLine(vdd_levels_path, "320000 3");
+                	Utils.fileWriteOneLine(vdd_levels_path, "480000 5");
+                	Utils.fileWriteOneLine(vdd_levels_path, "600000 6");
+			Utils.fileWriteOneLine(vdd_levels_path, "800000 6");
                     }
                     else {
                         //insmod the undervolting module for .29 kernel

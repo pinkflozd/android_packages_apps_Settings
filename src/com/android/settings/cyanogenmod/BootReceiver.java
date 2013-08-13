@@ -34,6 +34,10 @@ import java.io.IOException;
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+
 public class BootReceiver extends BroadcastReceiver {
 
     private static final String TAG = "BootReceiver";
@@ -95,7 +99,7 @@ public class BootReceiver extends BroadcastReceiver {
             String vdd_levels_path = "/sys/devices/system/cpu/cpu0/cpufreq/vdd_levels";
             File vdd_levels = new File(vdd_levels_path);
             if (vdd_levels.isFile() && vdd_levels.canRead()) {
-                Utils.fileWriteOneLine(vdd_levels_path, "122880 0");
+                Utils.fileWriteOneLine(vdd_levels_path, "122880 2");
                 Utils.fileWriteOneLine(vdd_levels_path, "245760 2");
                 Utils.fileWriteOneLine(vdd_levels_path, "320000 3");
                 Utils.fileWriteOneLine(vdd_levels_path, "480000 5");
@@ -195,7 +199,6 @@ public class BootReceiver extends BroadcastReceiver {
         command = "/system/bin/rmmod " + module;
         try {
             Process process = Runtime.getRuntime().exec("su");
-            Log.e(TAG, "Executing: " + command);
             DataOutputStream outputStream = new DataOutputStream(process.getOutputStream()); 
             DataInputStream inputStream = new DataInputStream(process.getInputStream());
             outputStream.writeBytes(command + "\n");
